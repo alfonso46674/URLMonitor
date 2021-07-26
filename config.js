@@ -7,14 +7,16 @@ let environments = {};
 environments.staging = {
     'httpPort': 3000,
     'httpsPort':3001,
-    'envName': 'staging'
+    'envName': 'staging',
+    'hashingSecret':'secret'
 };
 
 //production environment
 environments.production = {
     'httpPort': 5000,
     'httpsPort':5001,
-    'envName': 'production'
+    'envName': 'production',
+    'hashingSecret':'secret'
 };
 
 
