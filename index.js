@@ -8,6 +8,12 @@ const config = require('./lib/config');
 const handlers = require('./lib/handlers')
 const helpers = require('./lib/helpers')
 
+//TODO testing, remove this
+// helpers.sendTwilioSms('3334652505','Prueba envio de mensajes!',function(err){
+//     console.log('This was the error',err);
+// });
+
+
 //http server instance
 let httpServer = http.createServer((req,res)=>{
     
