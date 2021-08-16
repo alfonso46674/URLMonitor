@@ -21,6 +21,9 @@ app.init = function(){
     // Bind all form submissions
     app.bindForms();
 
+    //bind logout button
+    app.bindLogoutButton();
+
     //get token from localstorage and evaluate if it exists
     app.getSessionToken();
 
@@ -124,16 +127,21 @@ app.bindForms = function(){
           app.client.request(undefined,path,method,undefined,payload,function(statusCode,responsePayload){
             // Display an error on the form if needed
             if(statusCode !== 200){
-    
-              // Try to get the error from the api, or set a default error message
-              var error = typeof(responsePayload.Error) == 'string' ? responsePayload.Error : 'An error has occured, please try again';
-    
-              // Set the formError field with the error text
-              document.querySelector("#"+formId+" .formError").innerHTML = error;
-    
-              // Show (unhide) the form error field on the form
-              document.querySelector("#"+formId+" .formError").style.display = 'block';
-    
+
+              if(statusCode == 403){
+                //log user out
+                console.log('Entrando logUserOut');
+                app.logUserOut();
+              } else {
+                 // Try to get the error from the api, or set a default error message
+                var error = typeof(responsePayload.Error) == 'string' ? responsePayload.Error : 'An error has occured, please try again';
+      
+                // Set the formError field with the error text
+                document.querySelector("#"+formId+" .formError").innerHTML = error;
+      
+                // Show (unhide) the form error field on the form
+                document.querySelector("#"+formId+" .formError").style.display = 'block';
+              }
             } else {
               // If successful, send to form response processor
               app.formResponseProcessor(formId,payload,responsePayload);
@@ -144,6 +152,10 @@ app.bindForms = function(){
       }
   };
 
+
+/*
+LOGIN AND CREATE ACCOUNT LOGIC
+*/
   // Form response processor
 app.formResponseProcessor = function(formId,requestPayload,responsePayload){
     var functionToCall = false;
@@ -268,3 +280,42 @@ app.tokenRenewalLoop = function(){
       });
     },1000 * 60);
   };
+
+
+/*
+LOGOUT LOGIC
+*/
+
+// Bind the logout button
+app.bindLogoutButton = function(){
+  document.getElementById("logoutButton").addEventListener("click", function(e){
+
+    // Stop it from redirecting anywhere
+    e.preventDefault();
+    console.log('entreBindLogout');
+    // Log the user out
+    app.logUserOut();
+
+  });
+};
+
+// Log the user out then redirect them
+app.logUserOut = function(){
+  // Get the current token id
+  var tokenId = typeof(app.config.sessionToken.id) == 'string' ? app.config.sessionToken.id : false;
+
+  // Send the current token to the tokens endpoint to delete it
+  var queryStringObject = {
+    'id' : tokenId
+  };
+  app.client.request(undefined,'api/tokens','DELETE',queryStringObject,undefined,function(statusCode,responsePayload){
+    // Set the app.config token as false
+    app.setSessionToken(false);
+    console.log('terminandoLogUserOut');
+    // Send the user to the logged out page
+    window.location = '/session/deleted';
+
+  });
+};
+
+
