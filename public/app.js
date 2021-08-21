@@ -39,7 +39,7 @@ app.client.request = function(headers,path,method,queryStringObject,payload,call
     //set defaults
     headers = typeof(headers) == 'object' && headers !== null ? headers : {};
     path = typeof(path) == 'string' ? path : '/';
-    method = typeof(method) == 'string' && ['POST','GET','PUT','DELETE'].indexOf(method) > -1 ? method.toUpperCase() : 'GET';
+    method = typeof(method) == 'string' && ['POST','GET','PUT','DELETE'].indexOf(method.toUpperCase()) > -1 ? method.toUpperCase() : 'GET';
     queryStringObject = typeof(queryStringObject) == 'object' && queryStringObject !== null ? queryStringObject : {};
     payload = typeof(payload) == 'object' && payload !== null ? payload : {};
     callback = typeof(callback) == 'function' ? callback : false;
@@ -108,7 +108,7 @@ app.bindForms = function(){
         //Allow a single page to have multiple forms
         let allForms = document.querySelectorAll("form");
         for(let i = 0; i < allForms.length; i++){
-          document.querySelector("form").addEventListener("submit", function(e){
+         allForms[i].addEventListener("submit", function(e){
 
             // Stop it from submitting
             e.preventDefault();
@@ -117,7 +117,12 @@ app.bindForms = function(){
             var method = this.method.toUpperCase();
       
             // Hide the error message (if it's currently shown due to a previous error)
-            document.querySelector("#"+formId+" .formError").style.display = 'hidden';
+            document.querySelector("#"+formId+" .formError").style.display = 'none';
+
+            // Hide the success message (if it's currently shown due to a previous error)
+            if(document.querySelector("#"+formId+" .formSuccess")){
+              document.querySelector("#"+formId+" .formSuccess").style.display = 'none';
+            }
       
             // Turn the inputs into a payload
             var payload = {};
@@ -132,9 +137,12 @@ app.bindForms = function(){
                 }
               }
             }
+
+            // If the method is DELETE, the payload should be a queryStringObject instead
+            let queryStringObject = method == 'DELETE' ? payload : {};
       
             // Call the API
-            app.client.request(undefined,path,method,undefined,payload,function(statusCode,responsePayload){
+            app.client.request(undefined,path,method,queryStringObject,payload,function(statusCode,responsePayload){
               // Display an error on the form if needed
               if(statusCode !== 200){
   
@@ -203,6 +211,12 @@ app.formResponseProcessor = function(formId,requestPayload,responsePayload){
     let formsWithSuccessMessages = ['accountEdit1', 'accountEdit2'];
     if(formsWithSuccessMessages.indexOf(formId) > -1){
       document.querySelector("#"+formId+" .formSuccess").style.display = 'block';
+    }
+
+    // If the user just deleted their account, redirect them to the account-delete page
+    if(formId == 'accountEdit3'){
+      app.logUserOut(false);
+      window.location = '/account/deleted';
     }
   }; 
 
