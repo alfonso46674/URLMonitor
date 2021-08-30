@@ -23,3 +23,14 @@ node index.js
 4. Delete their account
 5. Create, update and delete checks
 6. View a dashboard with all of the checks
+
+### CLI Commands:
+1. exit - Exit the application
+2. man / help - Returns information regarding a command or the application
+3. stats - Returns everything about the OS and related systems
+4. list users - Lists all the registered users
+5. more user info --{userId} - Returns information about a specific user
+6. list checks --up / --down - Lists all the checks, or filter them if they are up or down
+7. more check info --{checkId} - Returns information about a specific check
+8. list logs - Lists all of the logs in the system
+9. more log info --{logId} - Returns information about a specific log
